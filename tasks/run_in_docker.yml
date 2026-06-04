@@ -69,8 +69,8 @@
         state: latest
         executable: pip3
       when:
-        - ansible_distribution == "ubuntu"
-        - ansible_distribution_major_version != 24
+        - ansible_facts['distribution'] | lower == "ubuntu"
+        - ansible_facts['distribution_major_version'] | int != 24
 
     - name: Install jsondiff from pip
       pip:
@@ -78,16 +78,16 @@
         state: present
         executable: pip3
       when:
-        - ansible_distribution == "ubuntu"
-        - ansible_distribution_major_version != 24
+        - ansible_facts['distribution'] | lower == "ubuntu"
+        - ansible_facts['distribution_major_version'] | int != 24
 
     - name: Ensure jsondiff
       package:
         name: "python3-jsondiff"
         state: present
       when:
-        - ansible_distribution == "ubuntu"
-        - ansible_distribution_major_version == 24
+        - ansible_facts['distribution'] | lower == "ubuntu"
+        - ansible_facts['distribution_major_version'] | int == 24
 
     - name: Deploy docker postgres_exporter container in swarm
       community.docker.docker_stack:
@@ -117,5 +117,5 @@
                   name: "{{ postgres_exporter_docker_network_name }}"
       run_once: True
 
-  delegate_to: "{{ postgres_exporter_swarm_manager }}"
+  delegate_to: "{{ postgres_exporter_swarm_manager | default(omit) }}"
   when: postgres_exporter_swarm_manager is defined
